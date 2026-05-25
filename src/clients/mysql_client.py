@@ -1,4 +1,5 @@
 import mysql.connector
+import logging
 
 
 class MySQLClient:
@@ -8,12 +9,16 @@ class MySQLClient:
         self.cursor = None
 
     def connect(self):
+        logging.info("Connecting to MySQL")
+
+
         self.conn = mysql.connector.connect(
             host=self.config["host"],
             user=self.config["user"],
             password=self.config["password"],
             database=self.config["database"],
         )
+        logging.info("Connected to MySQL")
 
         self.cursor = self.conn.cursor()
         return self.conn
@@ -33,9 +38,11 @@ class MySQLClient:
             raise Exception("Connection is not initialized")
 
         try:
+            logging.info(f"Executing query: {query}")
             self.cursor.execute(query)
 
             dados = self.cursor.fetchall()
+            logging.info(f"Fetched {len(dados)} rows")
 
             colunas = [
                 desc[0]
