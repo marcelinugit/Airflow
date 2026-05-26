@@ -1,15 +1,15 @@
 import mysql.connector
 import logging
 
+logger = logging.getLogger(__name__)
 
 class MySQLClient:
     def __init__(self, config: dict):
         self.config = config
         self.conn = None
-        self.cursor = None
 
     def connect(self):
-        logging.info("Connecting to MySQL")
+        logger.info("Connecting to MySQL")
 
 
         self.conn = mysql.connector.connect(
@@ -18,47 +18,26 @@ class MySQLClient:
             password=self.config["password"],
             database=self.config["database"],
         )
-        logging.info("Connected to MySQL")
-
-        self.cursor = self.conn.cursor()
+        logger.info("Connected to MySQL")
         return self.conn
 
     def close(self):
-        if self.cursor:
-            self.cursor.close()
 
         if self.conn:
             self.conn.close()
 
     def select(self, query: str):
         if not query:
-            raise Exception("Query is required")
+            raise ValueError("Query is required")
 
-        if not self.cursor:
-            raise Exception("Connection is not initialized")
+        logger.info(f"Executing query: {query}")
 
-        try:
-            logging.info(f"Executing query: {query}")
-            self.cursor.execute(query)
+        with self.conn.cursor(dictionary=True) as cursor:
 
-            dados = self.cursor.fetchall()
-            logging.info(f"Fetched {len(dados)} rows")
+            cursor.execute(query)
+            logger.info("Query executed")
 
-            colunas = [
-                desc[0]
-                for desc in self.cursor.description
-            ]
+            data = cursor.fetchall()
+            logger.info("data fatched")
 
-            result = []
-
-            for linha in dados:
-                result.append(
-                    dict(zip(colunas, linha))
-                )
-
-            return result
-
-        except mysql.connector.Error as error:
-            raise Exception(
-                f"MySQL error while executing query: {query}"
-            ) from error
+            return data
