@@ -1,15 +1,15 @@
 import mysql.connector
 import logging
 
+logger = logging.getLogger(__name__)
 
 class MySQLClient:
     def __init__(self, config: dict):
         self.config = config
         self.conn = None
-        self.cursor = None
 
     def connect(self):
-        logging.info("Connecting to MySQL")
+        logger.info("Connecting to MySQL")
 
 
         self.conn = mysql.connector.connect(
@@ -18,47 +18,60 @@ class MySQLClient:
             password=self.config["password"],
             database=self.config["database"],
         )
-        logging.info("Connected to MySQL")
-
-        self.cursor = self.conn.cursor()
+        logger.info("Connected to MySQL")
         return self.conn
 
     def close(self):
-        if self.cursor:
-            self.cursor.close()
 
         if self.conn:
             self.conn.close()
 
+
     def select(self, query: str):
         if not query:
-            raise Exception("Query is required")
+            raise ValueError("Query is required")
 
-        if not self.cursor:
-            raise Exception("Connection is not initialized")
+        with self.conn.cursor(dictionary=True) as cursor:
+            cursor.execute(query)
+            data = cursor.fetchall()
+            return data
 
-        try:
-            logging.info(f"Executing query: {query}")
-            self.cursor.execute(query)
 
-            dados = self.cursor.fetchall()
-            logging.info(f"Fetched {len(dados)} rows")
+    def insert(self, query: str, values: tuple):
+        if not query:
+            raise ValueError("Query is required")
 
-            colunas = [
-                desc[0]
-                for desc in self.cursor.description
-            ]
+        if not values:
+            raise ValueError("Values are required")
 
-            result = []
+        with self.conn.cursor() as cursor:
+            cursor.execute(query, values)
+            self.conn.commit()
 
-            for linha in dados:
-                result.append(
-                    dict(zip(colunas, linha))
-                )
+            logger.info("Inserted into MySQL")
 
-            return result
+    def update(self, query: str, values: tuple):
+        if not query:
+            raise ValueError("Query is required")
 
-        except mysql.connector.Error as error:
-            raise Exception(
-                f"MySQL error while executing query: {query}"
-            ) from error
+        if not values:
+            raise ValueError("Values are required")
+
+        with self.conn.cursor() as cursor:
+            cursor.execute(query, values)
+            self.conn.commit()
+
+            logger.info("Updated MySQL")
+
+    def delete(self, query: str, values: tuple):
+        if not query:
+            raise ValueError("Query is required")
+
+        if not values:
+            raise ValueError("Values are required")
+
+        with self.conn.cursor() as cursor:
+            cursor.execute(query, values)
+            self.conn.commit()
+
+            logger.info("Deleted from MySQL")
