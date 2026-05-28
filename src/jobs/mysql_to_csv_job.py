@@ -1,60 +1,33 @@
-import os
-import csv
-
+import logging
 from src.clients.mysql_client import MySQLClient
 
+logger = logging.getLogger(__name__)
 
 class MySQLToCSVJob:
     def __init__(
         self,
         db: MySQLClient,
-        output_path: str
+            file_writer
     ):
         self.db = db
-        self.output_path = output_path
+        self.file_writer = file_writer
 
     def get_data(self, query: str):
+        logger.info("Getting data")
         return self.db.select(query)
-
-    def save_file(
-        self,
-        data: list,
-        file_name: str
-    ):
-        if not data:
-            raise Exception("No data to save")
-
-        if not os.path.exists(self.output_path):
-            os.makedirs(self.output_path)
-
-        filepath = os.path.join(
-            self.output_path,
-            file_name
-        )
-
-        with open(
-            filepath,
-            mode="w",
-            newline="",
-            encoding="utf-8"
-        ) as file:
-
-            writer = csv.DictWriter(
-                file,
-                fieldnames=data[0].keys()
-            )
-
-            writer.writeheader()
-            writer.writerows(data)
 
     def run(
         self,
         query: str,
-        file_name: str
+            file_name: str
     ):
+        if not query:
+            raise ValueError("query is empty")
+
+        logger.info("Running query")
         data = self.get_data(query)
 
-        self.save_file(
-            data=data,
-            file_name=file_name
-        )
+        logger.info("Writing data and saving file")
+        self.file_writer.save_file(data, file_name)
+
+        logger.info("JOB was finished")
