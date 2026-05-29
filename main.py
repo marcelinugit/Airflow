@@ -1,41 +1,54 @@
 import time
-from core.logger import get_logger
+
+from app.jobs.mysql_to_bucket.job import MySQLToBucketJob
 from config.settings import Settings
+from core.logger import get_logger
 from integration.databases.mysql_client import MySQLClient
 from writers.file_writer import FileWriter
-from app.jobs.mysql_to_bucket import MySQLToBucketJob
 
 logger = get_logger(__name__)
 
 
 def main() -> None:
-    start = time.time()
-    db = None
+    start_time = time.time()
+    status = "SUCCESS"
+
+    db: MySQLClient | None = None
 
     try:
         settings = Settings()
 
-        db = MySQLClient(settings.get_mysql_config())
+        db = MySQLClient(
+            config=settings.get_mysql_config()
+        )
+
         db.connect()
 
         job = MySQLToBucketJob(
             db=db,
-            writer=FileWriter(settings.output_path)
+            writer=FileWriter(
+                output_path=settings.output_path
+            ),
         )
 
         job.run(
             query="SELECT * FROM clientes",
-            file_name="clientes.csv"
+            file_name="clientes.csv",
         )
 
-    except Exception as e:
-        logger.exception(f"ETL failed: {e}")
+    except Exception:
+        status = "FAILED"
+        logger.exception("ETL job failed")
 
     finally:
         if db:
             db.close()
 
-        logger.info(f"Finished in {time.time() - start:.2f}s")
+        duration = time.time() - start_time
+
+        logger.info(
+            f"Status: {status} | Duration: {duration:.2f}s"
+        )
 
 
 if __name__ == "__main__":
