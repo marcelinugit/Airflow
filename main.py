@@ -1,6 +1,6 @@
 import time
 
-from app.jobs.mysql_to_bucket.job import MySQLToBucketJob
+from app.jobs.mysql_to_bucket.mysql_to_bucket import MySQLToBucketJob
 from config.settings import Settings
 from core.logger import get_logger
 from integration.databases.mysql_client import MySQLClient
