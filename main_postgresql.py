@@ -13,15 +13,13 @@ def main() -> None:
     start_time = time.time()
     status = "SUCCESS"
 
-    db: PostgresClient | None = None
+    settings = Settings()
+
+    db = PostgresClient(
+        config=settings.get_postgres_config()
+    )
 
     try:
-        settings = Settings()
-
-        db = PostgresClient(
-            config=settings.get_postgres_config()
-        )
-
         db.connect()
 
         writer = FileWriter(
@@ -43,8 +41,7 @@ def main() -> None:
         logger.exception("PostgreSQL ETL job failed")
 
     finally:
-        if db is not None:
-            db.close()
+        db.close()
 
         duration = time.time() - start_time
 

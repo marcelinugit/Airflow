@@ -31,7 +31,7 @@ class FileWriter:
         )
 
         logger.info(
-            f"Writing file: {file_name}"
+            f"Writing file: {file_path}"
         )
 
         with open(
@@ -50,5 +50,5 @@ class FileWriter:
             writer.writerows(data)
 
         logger.info(
-            f"File saved at {file_path}"
+            f"File saved at: {os.path.abspath(file_path)}"
         )
