@@ -94,6 +94,7 @@ The project uses two sample tables:
 
 # 📁 Project Structure
 
+´´´
 dags/
 ├── ingestao_postgres.py
 
@@ -104,7 +105,7 @@ data/
 └── landing/
 ├── usuario.parquet
 └── produto.parquet
-
+´´´ 
 docker-compose.yml
 
 README.md
