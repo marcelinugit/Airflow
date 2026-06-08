@@ -1,162 +1,166 @@
-# 🐍 MySQL ETL Pipeline (Python)
+# 🚀 PostgreSQL Data Ingestion Pipeline with Apache Airflow
 
-This project was built as part of my learning journey to become a Software Engineer / Data Engineer, focusing on building real-world ETL pipelines using Python and MySQL.
+This project simulates a real-world Data Engineering workflow using PostgreSQL, Docker, Apache Airflow and Python.
 
-A simple ETL pipeline built with Python that extracts data from a MySQL database and exports it to CSV files.
-
----
-
-# 💡 Motivation
-
-This project simulates a real ETL pipeline used in data engineering systems, where data is extracted from a database, processed, and stored in a structured format for further analysis.
-
-It was built to practice:
-- Clean Architecture
-- Separation of Responsibilities
-- Dependency Injection
-- ETL concepts (Extract → Transform → Load)
+The pipeline extracts data from a PostgreSQL database, processes it using Pandas, and stores the results in CSV or Parquet files through an orchestrated Airflow DAG.
 
 ---
 
-# 🚀 Features
+# 🎯 Project Goal
 
-- Connects to MySQL database
-- Executes SQL queries
-- Transforms results into structured data (`list[dict]`)
-- Exports data to CSV files
-- Environment-based configuration (`.env`)
-- Modular and scalable architecture
+Build an end-to-end ingestion pipeline that demonstrates:
 
----
-
-# 🛠️ Tech Stack
-
-- Python
-- MySQL
-- python-dotenv
+* PostgreSQL provisioning with Docker
+* Persistent database storage using Docker Volumes
+* Workflow orchestration with Apache Airflow
+* Data extraction from PostgreSQL
+* Data transformation using Pandas
+* Data persistence in CSV or Parquet format
+* Execution monitoring and logging
 
 ---
 
-# 🏗️ Project Structure
+# 🏗️ Architecture
 
-```text
-src/
-├── clients/        # MySQL connection layer
-├── config/         # Environment settings (.env loader)
-├── jobs/           # ETL pipeline logic
-└── main.py         # Application entry point
+PostgreSQL (Docker)
 
-tests/              # Unit tests
-bucket/             # Output CSV files
-```
+↓
 
----
+Apache Airflow
 
-# ⚙️ How it works
+↓
 
-Data flows through the pipeline:
+Extract
 
-MySQL Database → MySQLClient → ETL Job → CSV File (bucket/)
+↓
 
----
+Transform (Pandas)
 
-# 🔧 Setup
+↓
 
-## 1. Clone repository
+Load
 
-```bash
-git clone https://github.com/your-username/mysql-etl-pipeline-python.git
-cd mysql-etl-pipeline-python
-```
+↓
 
-## 2. Create virtual environment
-
-```bash
-python -m venv venv
-```
-
-Activate:
-
-Windows:
-```bash
-venv\Scripts\activate
-```
-
-Linux/Mac:
-```bash
-source venv/bin/activate
-```
-
-## 3. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
+CSV / Parquet Files
 
 ---
 
-# 🔐 Environment Variables (.env)
+# 🛠️ Technologies
 
-Create a `.env` file in the root folder:
-
-```env
-MYSQL_HOST=localhost
-MYSQL_USER=your_user
-MYSQL_PASSWORD=your_password
-MYSQL_DATABASE=your_database
-
-OUTPUT_PATH=./bucket
-```
+* Python
+* Apache Airflow
+* PostgreSQL
+* Docker
+* Pandas
+* PyArrow
+* Docker Compose
 
 ---
 
-# ▶️ Run the project
+# 📦 Project Features
 
-```bash
-python src/main.py
-```
-
----
-
-# 🧠 Architecture Highlights
-
-This project applies:
-- Single Responsibility Principle (SRP)
-- Dependency Injection
-- Separation of Concerns
-- Modular design
-- Reusable components
+* PostgreSQL containerized with Docker
+* Persistent storage using Docker Volumes
+* Automatic database initialization through SQL scripts
+* Airflow DAG orchestration
+* PostgreSQL connection validation
+* Data extraction from multiple tables
+* DataFrame processing with Pandas
+* Export to CSV or Parquet
+* Execution logs and metrics
 
 ---
 
-# 📦 Output
+# 📂 Dataset
 
-After execution, CSV files will be generated in:
+The project uses two sample tables:
 
-```text
-bucket/
-```
+## usuario
+
+* id
+* nome
+* email
+* data_criacao
+
+## produto
+
+* id
+* nome
+* preco
+* data_criacao
 
 ---
 
-# 📚 Learning Focus
+# 📁 Project Structure
+
+dags/
+├── ingestao_postgres.py
+
+sql/
+├── init.sql
+
+data/
+└── landing/
+├── usuario.parquet
+└── produto.parquet
+
+docker-compose.yml
+
+README.md
+
+---
+
+# 🔄 ETL Flow
+
+Extract
+
+* Read data from PostgreSQL
+* Execute SQL queries
+
+Transform
+
+* Convert query results into Pandas DataFrames
+* Validate schema
+* Validate record counts
+
+Load
+
+* Save data to CSV or Parquet files
+
+---
+
+# 📊 Logging
+
+The pipeline records:
+
+* Execution timestamp
+* Number of records extracted
+* Processing duration
+* Execution status
+
+---
+
+# ✅ Validation
+
+* PostgreSQL container running
+* Volume persistence validated
+* Airflow connection working
+* DAG executed successfully
+* Files generated in landing layer
+* Data preserved after container restart
+
+---
+
+# 📚 Learning Objectives
 
 This project was built to practice:
-- Python OOP
-- MySQL integration
-- ETL pipelines
-- Clean code principles
-- Software architecture fundamentals
 
----
-
-# 🚧 Future Improvements
-
-- Add logging system
-- Add unit tests coverage
-- Add data validation layer
-- Support multiple tables extraction
-- Docker support
-- CI/CD pipeline (GitHub Actions)
-
----
+* Docker Networking
+* Docker Volumes
+* PostgreSQL administration
+* Apache Airflow fundamentals
+* DAGs and Task orchestration
+* ETL development
+* Data Engineering workflows
+* Production-like data pipelines
