@@ -1,8 +1,8 @@
 from typing import Any
 
-from core.logger import get_logger
-from integration.databases.mysql_client import MySQLClient
-from writers.file_writer import FileWriter
+from gustavo_sdk.infrastructure.common.config.settings import Settings
+from gustavo_sdk.infrastructure.common.utils import get_logger, save_file
+from gustavo_sdk.infrastructure.integration.databases.mysql_client import MySQLClient
 
 logger = get_logger(__name__)
 
@@ -11,10 +11,9 @@ class MySQLToBucketJob:
     def __init__(
         self,
         db: MySQLClient,
-        writer: FileWriter,
     ) -> None:
         self.db = db
-        self.writer = writer
+        self.settings = Settings()
 
     def extract(self, query: str) -> list[dict[str, Any]]:
         if not query:
@@ -28,7 +27,12 @@ class MySQLToBucketJob:
         data: list[dict[str, Any]],
         file_name: str,
     ) -> None:
-        self.writer.save_file(data, file_name)
+
+        save_file(
+            output_path=self.settings.output_path or "data/landing",
+            data=data,
+            file_name=file_name
+        )
 
     def run(
         self,

@@ -1,8 +1,8 @@
 from typing import Any
 
-from core.logger import get_logger
-from integration.databases.postgres_client import PostgresClient
-from writers.file_writer import FileWriter
+from gustavo_sdk.infrastructure.common.config.settings import Settings
+from gustavo_sdk.infrastructure.common.utils import get_logger, save_file
+from gustavo_sdk.infrastructure.integration.databases.postgres_client import PostgresClient
 
 logger = get_logger(__name__)
 
@@ -11,17 +11,15 @@ class PostgresToBucketJob:
     def __init__(
         self,
         db: PostgresClient,
-        writer: FileWriter,
     ) -> None:
         self.db = db
-        self.writer = writer
+        self.settings = Settings()
 
     def extract(self, query: str) -> list[dict[str, Any]]:
         if not query:
             raise ValueError("Query is required")
 
         logger.info("Extracting data from PostgreSQL")
-
         return self.db.select(query)
 
     def load(
@@ -29,7 +27,11 @@ class PostgresToBucketJob:
         data: list[dict[str, Any]],
         file_name: str,
     ) -> None:
-        self.writer.save_file(data, file_name)
+        save_file(
+            output_path=self.settings.output_path or "data/landing",
+            data=data,
+            file_name=file_name
+        )
 
     def run(
         self,
@@ -41,7 +43,7 @@ class PostgresToBucketJob:
         data = self.extract(query)
 
         if not data:
-            logger.warning("No data found")
+            logger.warning("No data found in PostgreSQL")
             return []
 
         self.load(data, file_name)

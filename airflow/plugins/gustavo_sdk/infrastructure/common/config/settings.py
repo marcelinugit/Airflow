@@ -1,9 +1,7 @@
 import os
-
 from dotenv import load_dotenv
 
 load_dotenv()
-
 
 class Settings:
     def __init__(self) -> None:
@@ -23,30 +21,18 @@ class Settings:
         # Output
         self.output_path = os.getenv("OUTPUT_PATH")
 
-    def _validate(
-        self,
-        config: dict[str, str | None]
-    ) -> dict[str, str]:
+    def _validate(self, config: dict[str, str | None]) -> dict[str, str]:
         """
         Validate environment variables before returning config.
         """
-
-        missing_vars = [
-            key
-            for key, value in config.items()
-            if value is None
-        ]
+        missing_vars = [key for key, value in config.items() if value is None]
 
         if missing_vars:
             raise ValueError(
                 f"Missing environment variables: {', '.join(missing_vars)}"
             )
 
-        return {
-            key: value
-            for key, value in config.items()
-            if value is not None
-        }
+        return {key: value for key, value in config.items() if value is not None}
 
     def get_mysql_config(self) -> dict[str, str]:
         return self._validate(

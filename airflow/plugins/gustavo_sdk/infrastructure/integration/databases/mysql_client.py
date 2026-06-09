@@ -1,6 +1,8 @@
-import mysql.connector
 from typing import Any, Dict, List, Optional
-from core.logger import get_logger
+import mysql.connector
+
+# Corrigido o import apontando para a pasta comum de utils
+from gustavo_sdk.infrastructure.common.utils import get_logger
 
 logger = get_logger(__name__)
 

@@ -1,7 +1,7 @@
 from typing import Any
 import psycopg2
 
-from core.logger import get_logger
+from gustavo_sdk.infrastructure.common.utils import get_logger
 
 logger = get_logger(__name__)
 
@@ -22,7 +22,6 @@ class PostgresClient:
             )
 
             logger.info("Connected to PostgreSQL")
-
             return self.conn
 
         except psycopg2.Error as error:
@@ -46,7 +45,4 @@ class PostgresClient:
             columns = [desc[0] for desc in cursor.description]
             rows = cursor.fetchall()
 
-            return [
-                dict(zip(columns, row))
-                for row in rows
-            ]
+            return [dict(zip(columns, row)) for row in rows]
