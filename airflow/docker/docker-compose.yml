@@ -26,5 +26,22 @@ services:
     volumes:
       - ../dags:/opt/airflow/dags
 
+    environment:
+      HOST: postgres
+      USER: admin
+      PASSWORD: 123456
+      DB: airflow_db
+
+  airflow-scheduler:
+      image: apache/airflow:2.9.3
+
+      volumes:
+        - ../dags:/opt/airflow/dags
+
+      environment:
+        HOST: postgres
+        USER: admin
+        PASSWORD: 123456
+        DB: airflow_db
 volumes:
   postgres_data:
