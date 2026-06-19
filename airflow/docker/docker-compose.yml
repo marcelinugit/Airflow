@@ -29,6 +29,7 @@ services:
 
     volumes:
       - ../dags:/opt/airflow/dags
+      - ../data/landing:/opt/airflow/landing
 
     environment:
       AIRFLOW__CORE__EXECUTOR: SequentialExecutor
@@ -45,6 +46,7 @@ services:
 
     volumes:
       - ../dags:/opt/airflow/dags
+      - ../data/landing:/opt/airflow/landing
 
     environment:
       AIRFLOW__CORE__EXECUTOR: SequentialExecutor
