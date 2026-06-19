@@ -1,8 +1,6 @@
 services:
-
   postgres:
     image: postgres:16
-
     container_name: postgres
 
     environment:
@@ -19,6 +17,12 @@ services:
 
   airflow-webserver:
     image: apache/airflow:2.9.3
+    container_name: airflow-webserver
+
+    depends_on:
+      - postgres
+
+    command: webserver
 
     ports:
       - "8080:8080"
@@ -27,21 +31,24 @@ services:
       - ../dags:/opt/airflow/dags
 
     environment:
-      HOST: postgres
-      USER: admin
-      PASSWORD: 123456
-      DB: airflow_db
+      AIRFLOW__CORE__EXECUTOR: SequentialExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://admin:123456@postgres:5432/airflow_db
 
   airflow-scheduler:
-      image: apache/airflow:2.9.3
+    image: apache/airflow:2.9.3
+    container_name: airflow-scheduler
 
-      volumes:
-        - ../dags:/opt/airflow/dags
+    depends_on:
+      - postgres
 
-      environment:
-        HOST: postgres
-        USER: admin
-        PASSWORD: 123456
-        DB: airflow_db
+    command: scheduler
+
+    volumes:
+      - ../dags:/opt/airflow/dags
+
+    environment:
+      AIRFLOW__CORE__EXECUTOR: SequentialExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://admin:123456@postgres:5432/airflow_db
+
 volumes:
   postgres_data:
