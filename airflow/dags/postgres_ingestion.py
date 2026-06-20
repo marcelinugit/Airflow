@@ -1,5 +1,6 @@
 from datetime import datetime
 from pathlib import Path
+import logging
 
 import pandas as pd
 
@@ -7,9 +8,7 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.providers.postgres.hooks.postgres import PostgresHook
 
-from gustavo_sdk.infrastructure.common.utils import get_logger
-
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 POSTGRES_CONN_ID = "postgres_default"
 
@@ -19,17 +18,19 @@ LANDING_DIR.mkdir(
     exist_ok=True,
 )
 
+
 def extract_table(
     table_name: str,
     output_file: str,
 ) -> pd.DataFrame:
     try:
         logger.info(
-            f"Starting extraction from table {table_name}"
+            "Starting extraction from table %s",
+            table_name,
         )
 
         hook = PostgresHook(
-            postgres_conn_id=POSTGRES_CONN_ID
+            postgres_conn_id=POSTGRES_CONN_ID,
         )
 
         dataframe = hook.get_pandas_df(
@@ -44,18 +45,22 @@ def extract_table(
         )
 
         logger.info(
-            f"File saved successfully: {output_path}"
+            "File saved successfully: %s",
+            output_path,
         )
 
         return dataframe
 
     except Exception as error:
         logger.exception(
-            f"Failed extracting table {table_name}"
+            "Failed extracting table %s",
+            table_name,
         )
+
         raise RuntimeError(
             f"Error extracting table {table_name}"
         ) from error
+
 
 def extract_user() -> pd.DataFrame:
     return extract_table(
@@ -63,17 +68,21 @@ def extract_user() -> pd.DataFrame:
         output_file="usuarios.csv",
     )
 
+
 def extract_product() -> pd.DataFrame:
     return extract_table(
         table_name="produto",
         output_file="produtos.csv",
     )
 
+
 def save_user() -> None:
     pass
 
+
 def save_product() -> None:
     pass
+
 
 with DAG(
     dag_id="postgres_ingestion",
