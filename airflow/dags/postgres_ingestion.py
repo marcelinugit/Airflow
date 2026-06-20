@@ -7,7 +7,8 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.providers.postgres.hooks.postgres import PostgresHook
 
-from airflow.plugins.gustavo_sdk.infrastructure.common.utils import get_logger
+from gustavo_sdk.infrastructure.common.utils import get_logger
+
 
 
 logger = get_logger(__name__)
