@@ -1,6 +1,5 @@
 from typing import Any
 
-from gustavo_sdk.infrastructure.common.config.settings import Settings
 from gustavo_sdk.infrastructure.common.utils import get_logger, save_file
 from gustavo_sdk.infrastructure.integration.databases.postgres_client import PostgresClient
 
@@ -14,7 +13,7 @@ class PostgresToBucketJob:
         bucket_prefix,
     ) -> None:
         self.db = db
-        self.setting = Settings()
+        self.bucket_prefix = bucket_prefix
 
     def extract(self, query: str) -> list[dict[str, Any]]:
         if not query:

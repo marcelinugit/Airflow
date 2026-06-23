@@ -1,5 +1,4 @@
 from datetime import datetime
-from pathlib import Path
 import logging
 
 from airflow import DAG
@@ -12,10 +11,10 @@ logger = logging.getLogger(__name__)
 
 conn = BaseHook.get_connection("postgres_default")
 host = conn.host
-login = conn.login
+user = conn.login
 password = conn.password
 port = conn.port or 3306
-dbname = conn.schema
+database = conn.schema
 
 with DAG(
     dag_id="ingestion_postgres_ecomercegustavo_landing",
@@ -29,10 +28,10 @@ with DAG(
         python_callable=postgres_to_bucket,
         op_kwargs={
             "host": host,
-            "login": login,
+            "user": user,
             "password": password,
             "port": port,
-            "dbname": dbname,
+            "database": database,
             "table_name": "usuario",
             "bucket_prefix": "ecomercegustavo/usuario/data.csv",
         }
@@ -43,10 +42,10 @@ with DAG(
         python_callable=postgres_to_bucket,
         op_kwargs={
             "host": host,
-            "login": login,
+            "user": user,
             "password": password,
             "port": port,
-            "dbname": dbname,
+            "database": database,
             "table_name": "produto",
             "bucket_prefix": "ecomercegustavo/produto/data.csv",
         }
