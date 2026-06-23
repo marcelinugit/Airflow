@@ -1,6 +1,5 @@
 import time
 
-from airflow.dags.postgres_ingestion import host
 from gustavo_sdk.app.jobs.mysql_to_bucket import MySQLToBucketJob
 from gustavo_sdk.app.jobs.postgre_to_bucket import PostgresToBucketJob
 from gustavo_sdk.infrastructure.common.config.settings import Settings
@@ -40,28 +39,39 @@ def mysql_to_bucket() -> None:
         logger.info(f"Status: {status} | Duration: {duration:.2f}s")
 
 
-def postgres_to_bucket(table_name,
-                       bucket_prefix,
-                       host,
-                       database,
-                       user,
-                       password,
-                       port) -> None:
+def postgres_to_bucket(
+                        table_name: str,
+                        bucket_prefix: str,
+                        host: str,
+                        database: str,
+                        user: str,
+                        password: str,
+                        port: str
+                        ) -> None:
     try:
 
-        db = PostgresClient(host=host,
-                            database=database,
-                            user=user,
-                            password=password,
-                            port=port)
+        config = {
+            "host":host,
+            "database":database,
+            "user":user,
+            "password":password,
+            "port":port,
+        }
+
+        db = PostgresClient(
+            config=config
+        )
 
         db.connect()
 
-        job = PostgresToBucketJob(db=db)
+        job = PostgresToBucketJob(
+            db=db,
+            bucket_prefix=bucket_prefix,
+        )
 
         job.run(
             query=f"SELECT * FROM {table_name}",
-            bucket_prefix=bucket_prefix
+            file_name="data.csv",
         )
 
     except Exception as err:
