@@ -1,6 +1,6 @@
 from typing import Any
 
-from gustavo_sdk.infrastructure.common.utils import get_logger, save_file
+from gustavo_sdk.infrastructure.common.utils import get_logger, upload_file_bucket
 from gustavo_sdk.infrastructure.integration.databases.postgres_client import PostgresClient
 
 logger = get_logger(__name__)
@@ -23,14 +23,14 @@ class PostgresToBucketJob:
         return self.db.select(query)
 
     def load(
-        self,
-        data: list[dict[str, Any]],
-        file_name: str,
+            self,
+            data: list[dict[str, Any]],
+            file_name: str,
     ) -> None:
-        save_file(
-            output_path=self.bucket_prefix,
+        upload_file_bucket(
+            bucket_prefix=self.bucket_prefix,
             data=data,
-            file_name=file_name
+            file_name=file_name,
         )
 
     def run(
