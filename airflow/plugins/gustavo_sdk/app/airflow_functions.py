@@ -41,12 +41,13 @@ def mysql_to_bucket() -> None:
 
 def postgres_to_bucket(
                         table_name: str,
+                        bucket_name: str,
                         bucket_prefix: str,
                         host: str,
                         database: str,
                         user: str,
                         password: str,
-                        port: str
+                        port: str,
                         ) -> None:
     try:
 
@@ -66,6 +67,7 @@ def postgres_to_bucket(
 
         job = PostgresToBucketJob(
             db=db,
+            bucket_name=bucket_name,
             bucket_prefix=bucket_prefix,
         )
 

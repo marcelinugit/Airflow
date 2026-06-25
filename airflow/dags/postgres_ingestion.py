@@ -33,7 +33,8 @@ with DAG(
             "port": port,
             "database": database,
             "table_name": "usuario",
-            "bucket_prefix": "ecomercegustavo/usuario/data.csv",
+            "bucket_name": "ecommercegustavo-data-lake",
+            "bucket_prefix": "ecomercegustavo/usuario",
         }
     )
 
@@ -47,6 +48,7 @@ with DAG(
             "port": port,
             "database": database,
             "table_name": "produto",
-            "bucket_prefix": "ecomercegustavo/produto/data.csv",
+            "bucket_name": "ecommercegustavo-data-lake",
+            "bucket_prefix": "ecomercegustavo/usuario",
         }
     )
