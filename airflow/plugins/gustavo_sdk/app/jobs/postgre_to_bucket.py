@@ -11,9 +11,11 @@ class PostgresToBucketJob:
     def __init__(
         self,
         db: PostgresClient,
-        bucket_prefix,
+        bucket_name: str,
+        bucket_prefix: str,
     ) -> None:
         self.db = db
+        self.bucket_name = bucket_name
         self.bucket_prefix = bucket_prefix
         self.gcp = GCP()
 
@@ -31,6 +33,7 @@ class PostgresToBucketJob:
     ) -> None:
 
         self.gcp.upload(
+            bucket_name=self.bucket_name,
             bucket_prefix=self.bucket_prefix,
             data=data,
             file_name=file_name,
