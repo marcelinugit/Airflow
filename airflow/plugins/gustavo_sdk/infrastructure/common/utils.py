@@ -4,7 +4,6 @@ import os
 from typing import Any
 
 def get_logger(name: str) -> logging.Logger:
-    # Mudado o nome interno para app_logger para não conflitar com o escopo global
     app_logger = logging.getLogger(name)
 
     if not app_logger.handlers:
@@ -43,3 +42,12 @@ def save_file(
         writer.writerows(data)
 
     logger.info(f"File saved at: {os.path.abspath(file_path)}")
+
+def upload_file_bucket(
+    bucket_prefix: str,
+    data: list[dict],
+    file_name: str,
+) -> None:
+    raise NotImplementedError(
+        "Upload para bucket GCP ainda não implementado"
+    )
