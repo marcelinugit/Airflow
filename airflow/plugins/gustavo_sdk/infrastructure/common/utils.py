@@ -2,6 +2,7 @@ import csv
 import logging
 import os
 from typing import Any
+from gustavo_sdk.infrastructure.integration.gcp.gcp import GCP
 
 def get_logger(name: str) -> logging.Logger:
     app_logger = logging.getLogger(name)
@@ -42,12 +43,3 @@ def save_file(
         writer.writerows(data)
 
     logger.info(f"File saved at: {os.path.abspath(file_path)}")
-
-def upload_file_bucket(
-    bucket_prefix: str,
-    data: list[dict],
-    file_name: str,
-) -> None:
-    raise NotImplementedError(
-        "Upload para bucket GCP ainda não implementado"
-    )

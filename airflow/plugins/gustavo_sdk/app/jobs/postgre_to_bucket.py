@@ -1,7 +1,8 @@
 from typing import Any
 
-from gustavo_sdk.infrastructure.common.utils import get_logger, upload_file_bucket
+from gustavo_sdk.infrastructure.common.utils import get_logger
 from gustavo_sdk.infrastructure.integration.databases.postgres_client import PostgresClient
+from gustavo_sdk.infrastructure.integration.gcp.gcp import GCP
 
 logger = get_logger(__name__)
 
@@ -14,6 +15,7 @@ class PostgresToBucketJob:
     ) -> None:
         self.db = db
         self.bucket_prefix = bucket_prefix
+        self.gcp = GCP()
 
     def extract(self, query: str) -> list[dict[str, Any]]:
         if not query:
@@ -27,7 +29,8 @@ class PostgresToBucketJob:
             data: list[dict[str, Any]],
             file_name: str,
     ) -> None:
-        upload_file_bucket(
+
+        self.gcp.upload(
             bucket_prefix=self.bucket_prefix,
             data=data,
             file_name=file_name,
