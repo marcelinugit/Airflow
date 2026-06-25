@@ -21,3 +21,6 @@ __pycache__/
 Thumbs.db
 
 airflow/data/landing/
+
+credentials/
+*.json

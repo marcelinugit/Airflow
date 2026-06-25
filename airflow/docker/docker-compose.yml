@@ -24,9 +24,11 @@ services:
       - ../dags:/opt/airflow/dags
       - ../plugins:/opt/airflow/plugins
       - ../data/landing:/opt/airflow/landing
+      - ../credentials:/opt/airflow/credentials
     environment:
       AIRFLOW__CORE__EXECUTOR: SequentialExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://admin:123456@postgres:5432/airflow_db
+      GOOGLE_APPLICATION_CREDENTIALS: /opt/airflow/credentials/ecommercegustavo-data-500420-18c4f67164f6.json
 
   airflow-scheduler:
     image: apache/airflow:2.9.3
@@ -38,9 +40,11 @@ services:
       - ../dags:/opt/airflow/dags
       - ../plugins:/opt/airflow/plugins
       - ../data/landing:/opt/airflow/landing
+      - ../credentials:/opt/airflow/credentials
     environment:
       AIRFLOW__CORE__EXECUTOR: SequentialExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://admin:123456@postgres:5432/airflow_db
+      GOOGLE_APPLICATION_CREDENTIALS: /opt/airflow/credentials/ecommercegustavo-data-500420-18c4f67164f6.json
 
 volumes:
   postgres_data:
