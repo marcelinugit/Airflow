@@ -4,11 +4,10 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Optional
 import google
-from airflow.hooks.base import BaseHook
 from google.cloud import storage
 from google.oauth2 import service_account
 from gustavo_sdk.infrastructure.common.utils import get_logger
-import json
+from datetime import datetime
 
 logger = get_logger(__name__)
 
@@ -50,17 +49,12 @@ class GCP:
             google.cloud.client: Configured client instance.
         """
 
-        if self.credentials_file_path:    # fluxo de decisão
-            # caminho para um arquivo
+        if self.credentials_file_path:
             os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = self.credentials_file_path
             return service.Client()
         elif self.credentials_json:
-            # não tenho o caminho mas tenho Json, usa Json
-
-
             info = self.credentials_json
 
-            # não tenho nenhum dos dois, uso as credencias normal
             credentials = service_account.Credentials.from_service_account_info(info=info)
             return service.Client(credentials=credentials)
         else:
@@ -83,8 +77,24 @@ class GCP:
                 writer.writeheader()
                 writer.writerows(data)
 
+            today = datetime.now()
+
+            year = today.year
+            month = f"{today.month:02d}"
+            day = f"{today.day:02d}"
+
+            hive_partition = (
+                    f"partition_year={year}/"
+                    f"partition_month={month}/"
+                    f"partition_day={day}"
+            )
+
             bucket = self.client.bucket(bucket_name)
-            blob = bucket.blob(f"{bucket_prefix}/{file_name}")
+
+            blob = bucket.blob(
+            f"{bucket_prefix}/{hive_partition}/{file_name}"
+            )
+
             blob.upload_from_filename(str(file_path))
 
         logger.info("File uploaded to GCP successfully")
