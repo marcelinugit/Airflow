@@ -24,3 +24,5 @@ airflow/data/landing/
 
 credentials/
 *.json
+
+test/
