@@ -22,8 +22,20 @@ service_account_info = json.loads(
     conn_bq.extra_dejson["keyfile_dict"]
 )
 
+today = datetime.now()
+
+ano = today.year
+mes = f"{today.month:02d}"
+dia = f"{today.day:02d}"
+
+hive_partition = (
+        f"partition_year={ano}/"
+        f"partition_month={mes}/"
+        f"partition_day={dia}"
+)
+
 with DAG(
-    dag_id="ingestion_postgres_ecomercegustavo_landing",
+    dag_id="ingestion_postgres_ifood_landing",
     start_date=datetime(2026, 6, 14),
     schedule=None,
     catchup=False,
@@ -39,8 +51,8 @@ with DAG(
             "port": port,
             "database": database,
             "table_name": "usuario",
-            "bucket_name": "ecommercegustavo-data-lake",
-            "bucket_prefix": "ecomercegustavo/usuario",
+            "bucket_name": "ifood-data-lake",
+            "bucket_prefix": f"ifood/usuario/{hive_partition}",
             "credentials_json": service_account_info,
         }
     )
@@ -55,8 +67,8 @@ with DAG(
             "port": port,
             "database": database,
             "table_name": "produto",
-            "bucket_name": "ecommercegustavo-data-lake",
-            "bucket_prefix": "ecomercegustavo/usuario",
+            "bucket_name": "ifood-data-lake",
+            "bucket_prefix": f"ifood/produto/{hive_partition}",
             "credentials_json": service_account_info,
         }
     )
