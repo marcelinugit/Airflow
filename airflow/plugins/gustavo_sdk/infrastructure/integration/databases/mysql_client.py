@@ -14,7 +14,7 @@ class MySQLClient:
     def connect(self) -> Any:
         logger.info("Connecting to MySQL")
 
-        mysql.connector.connect(
+        self.conn = mysql.connector.connect(
             host=self.config["host"],
             port=self.config["port"],
             user=self.config["user"],
