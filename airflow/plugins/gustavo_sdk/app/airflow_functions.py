@@ -1,8 +1,5 @@
-import time
-
 from gustavo_sdk.app.jobs.mysql_to_bucket import MySQLToBucketJob
 from gustavo_sdk.app.jobs.postgre_to_bucket import PostgresToBucketJob
-from gustavo_sdk.infrastructure.common.config.settings import Settings
 from gustavo_sdk.infrastructure.common.utils import get_logger
 from gustavo_sdk.infrastructure.integration.databases.mysql_client import MySQLClient
 from gustavo_sdk.infrastructure.integration.databases.postgres_client import PostgresClient
@@ -10,39 +7,54 @@ from gustavo_sdk.infrastructure.integration.databases.postgres_client import Pos
 logger = get_logger(__name__)
 
 
-def mysql_to_bucket() -> None:
-    start_time = time.time()
-    status = "SUCCESS"
-    db = None
-
+def mysql_to_bucket(
+        table_name: str,
+        bucket_name: str,
+        bucket_prefix: str,
+        file_name: str,
+        host: str,
+        database: str,
+        user: str,
+        password: str,
+        port: str,
+        credentials_json: str,
+) -> None:
     try:
-        settings = Settings()
-        db = MySQLClient(config=settings.get_mysql_config())
-        db.connect()
+        config = {
+            "host":host,
+            "database":database,
+            "user":user,
+            "password":password,
+            "port":port,
+        }
 
-        job = MySQLToBucketJob(db=db)
-
-        job.run(
-            query="SELECT * FROM clientes",
-            file_name="clientes.csv",
+        db = MySQLClient(
+            config=config
         )
 
+        db.connect()
+
+        job = MySQLToBucketJob(
+            db=db,
+            bucket_name=bucket_name,
+            bucket_prefix=bucket_prefix,
+            credentials_json=credentials_json,
+        )
+
+        job.run(
+            query=f"SELECT * FROM {table_name}",
+            file_name=file_name,
+        )
     except Exception as err:
-        status = "FAILED"
-        logger.exception(f"ETL job failed: {err}")
-
-    finally:
-        if db is not None:
-            db.close()
-
-        duration = time.time() - start_time
-        logger.info(f"Status: {status} | Duration: {duration:.2f}s")
+        logger.exception(f"MySQL ETL job failed: {err}")
+        raise
 
 
 def postgres_to_bucket(
                         table_name: str,
                         bucket_name: str,
                         bucket_prefix: str,
+                        file_name: str,
                         host: str,
                         database: str,
                         user: str,
@@ -75,7 +87,7 @@ def postgres_to_bucket(
 
         job.run(
             query=f"SELECT * FROM {table_name}",
-            file_name="data.csv",
+            file_name=file_name,
         )
 
     except Exception as err:

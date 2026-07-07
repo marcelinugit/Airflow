@@ -1,6 +1,5 @@
-from datetime import datetime
 import logging
-
+from datetime import datetime
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.hooks.base import BaseHook
@@ -22,8 +21,9 @@ service_account_info = json.loads(
     conn_bq.extra_dejson["keyfile_dict"]
 )
 
-today = datetime.now()
+timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
+today = datetime.now()
 ano = today.year
 mes = f"{today.month:02d}"
 dia = f"{today.day:02d}"
@@ -51,6 +51,7 @@ with DAG(
             "port": port,
             "database": database,
             "table_name": "usuario",
+            "file_name": f"usuario_{timestamp}.csv",
             "bucket_name": "ifood-data-lake",
             "bucket_prefix": f"ifood/usuario/{hive_partition}",
             "credentials_json": service_account_info,
@@ -67,6 +68,7 @@ with DAG(
             "port": port,
             "database": database,
             "table_name": "produto",
+            "file_name": f"produto_{timestamp}.csv",
             "bucket_name": "ifood-data-lake",
             "bucket_prefix": f"ifood/produto/{hive_partition}",
             "credentials_json": service_account_info,

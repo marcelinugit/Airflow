@@ -1,7 +1,6 @@
 from typing import Any, Dict, List, Optional
 import mysql.connector
 
-# Corrigido o import apontando para a pasta comum de utils
 from gustavo_sdk.infrastructure.common.utils import get_logger
 
 logger = get_logger(__name__)
@@ -15,13 +14,13 @@ class MySQLClient:
     def connect(self) -> Any:
         logger.info("Connecting to MySQL")
 
-        self.conn = mysql.connector.connect(
+        mysql.connector.connect(
             host=self.config["host"],
+            port=self.config["port"],
             user=self.config["user"],
             password=self.config["password"],
             database=self.config["database"],
         )
-
         logger.info("Connected to MySQL")
         return self.conn
 
