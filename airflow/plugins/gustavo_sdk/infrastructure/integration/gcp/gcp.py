@@ -1,4 +1,5 @@
-import csv
+import pyarrow as pa
+import pyarrow.parquet as pq
 import os
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -49,13 +50,10 @@ class GCP:
         with TemporaryDirectory() as root:
             file_path = Path(root) / file_name
 
-            with open(file_path, "w", newline="", encoding="utf-8") as file:
-                writer = csv.DictWriter(file, fieldnames=data[0].keys())
-                writer.writeheader()
-                writer.writerows(data)
+            table = pa.Table.from_pylist(data)
+            pq.write_table(table, file_path)
 
-            bucket = self.client.bucket(bucket_name)
-
+            bucket  = self.client.bucket(bucket_name)
             blob = bucket.blob(
                 f"{bucket_prefix}/{file_name}"
             )
