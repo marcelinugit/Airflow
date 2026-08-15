@@ -26,3 +26,4 @@ credentials/
 *.json
 
 debug/
+scripts_tests/
