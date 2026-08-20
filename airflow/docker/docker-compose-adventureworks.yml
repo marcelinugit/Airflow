@@ -13,6 +13,7 @@ services:
 
     volumes:
       - adventureworks_data:/var/lib/postgresql/data
+      - ../../AdventureWorks-for-Postgres:/AdventureWorks
 
 volumes:
   adventureworks_data:
