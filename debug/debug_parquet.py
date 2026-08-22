@@ -1,8 +1,8 @@
-import json # lê o arq d crerdenciais
-import pyarrow.parquet as pq # lê arq parquet
-from google.cloud import storage # permite acessar o gcs
-from google.oauth2 import service_account # cria as creden para autent
-import io #
+import json
+import pyarrow.parquet as pq
+from google.cloud import storage
+from google.oauth2 import service_account
+import io 
 
 SA_PATH = (
     r"C:\Users\Marce\OneDrive\Desktop\projeto dados\airflow\credentials\sa_credentials.json"
