@@ -9,6 +9,7 @@ from gustavo_sdk.app.airflow_functions import postgres_to_bucket
 
 logger = logging.getLogger(__name__)
 
+
 conn_postgres = BaseHook.get_connection("adventureworks_postgres")
 
 host = conn_postgres.host
@@ -57,10 +58,10 @@ with DAG(
             "port": port,
             "database": database,
             "table_name": "Sales.Customer",
-            "file_name": f"adventureworks_customer_{timestamp}.parquet",
-            "bucket_name": "ifood-data-lake",
+            "file_name": f"burgerking_customer_{timestamp}.parquet",
+            "bucket_name": "burgerking-data-lake",
             "bucket_prefix": (
-                f"adventureworks/customer/{hive_partition}"
+                f"burgerking/customer/{hive_partition}"
             ),
             "credentials_json": service_account_info,
         },
@@ -76,10 +77,10 @@ with DAG(
             "port": port,
             "database": database,
             "table_name": "Production.Product",
-            "file_name": f"adventureworks_product_{timestamp}.parquet",
-            "bucket_name": "ifood-data-lake",
+            "file_name": f"burgerking_product_{timestamp}.parquet",
+            "bucket_name": "burgerking-data-lake",
             "bucket_prefix": (
-                f"adventureworks/product/{hive_partition}"
+                f"burgerking/product/{hive_partition}"
             ),
             "credentials_json": service_account_info,
         },
