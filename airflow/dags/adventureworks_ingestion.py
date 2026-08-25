@@ -58,7 +58,7 @@ with DAG(
             "port": port,
             "database": database,
             "table_name": "Sales.Customer",
-            "file_name": f"burgerking_customer_{timestamp}.parquet",
+            "file_name": f"{timestamp}.parquet",
             "bucket_name": "burgerking-data-lake",
             "bucket_prefix": (
                 f"burgerking/customer/{hive_partition}"
@@ -77,7 +77,7 @@ with DAG(
             "port": port,
             "database": database,
             "table_name": "Production.Product",
-            "file_name": f"burgerking_product_{timestamp}.parquet",
+            "file_name": f"{timestamp}.parquet",
             "bucket_name": "burgerking-data-lake",
             "bucket_prefix": (
                 f"burgerking/product/{hive_partition}"
