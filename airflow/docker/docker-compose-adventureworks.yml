@@ -1,0 +1,19 @@
+services:
+  adventureworks:
+    image: postgres:16
+    container_name: adventureworks-postgres
+
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: adventureworks_db
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - adventureworks_data:/var/lib/postgresql/data
+      - ../../AdventureWorks-for-Postgres:/AdventureWorks
+
+volumes:
+  adventureworks_data:

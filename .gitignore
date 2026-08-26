@@ -25,5 +25,4 @@ airflow/data/landing/
 credentials/
 *.json
 
-debug/
-scripts_tests/
+AdventureWorks-for-Postgres/

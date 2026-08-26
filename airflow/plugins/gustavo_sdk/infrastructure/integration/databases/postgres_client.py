@@ -33,16 +33,12 @@ class PostgresClient:
             logger.info("Closing PostgreSQL connection")
             self.conn.close()
 
-    def select(self, query: str) -> list[dict[str, Any]]:
+    def select(self, query: str):
         if self.conn is None:
             raise ConnectionError("Database is not connected")
 
         logger.info("Executing SELECT query")
 
-        with self.conn.cursor() as cursor:
-            cursor.execute(query)
-
-            columns = [desc[0] for desc in cursor.description]
-            rows = cursor.fetchall()
-
-            return [dict(zip(columns, row)) for row in rows]
+        cursor = self.conn.cursor()
+        cursor.execute(query)
+        return cursor
