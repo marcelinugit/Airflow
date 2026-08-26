@@ -5,7 +5,10 @@ from airflow.operators.python import PythonOperator
 from airflow.hooks.base import BaseHook
 import json
 
-from gustavo_sdk.app.airflow_functions import postgres_to_bucket
+from gustavo_sdk.app.airflow_functions import (
+    postgres_to_bucket,
+    run_raw,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -25,8 +28,10 @@ service_account_info = json.loads(
     conn_bq.extra_dejson["keyfile_dict"]
 )
 
-
-timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+project_id = service_account_info["project_id"]
+system = "adventureworks"
+schema = "adventureworks_raw"
+bucket_name = "gustavo-data-plataform-raw"
 
 today = datetime.now()
 
@@ -58,10 +63,9 @@ with DAG(
             "port": port,
             "database": database,
             "table_name": "Sales.Customer",
-            "file_name": f"{timestamp}.parquet",
-            "bucket_name": "burgerking-data-lake",
+            "bucket_name": bucket_name,
             "bucket_prefix": (
-                f"burgerking/customer/{hive_partition}"
+                f"{system}/customer/{hive_partition}"
             ),
             "credentials_json": service_account_info,
         },
@@ -77,11 +81,46 @@ with DAG(
             "port": port,
             "database": database,
             "table_name": "Production.Product",
-            "file_name": f"{timestamp}.parquet",
-            "bucket_name": "burgerking-data-lake",
+            "bucket_name": bucket_name,
             "bucket_prefix": (
-                f"burgerking/product/{hive_partition}"
+                f"{system}/product/{hive_partition}"
             ),
             "credentials_json": service_account_info,
         },
     )
+
+    customer_raw = PythonOperator(
+        task_id="customer_raw",
+        python_callable=run_raw,
+        op_kwargs={
+            "project_id": project_id,
+            "schema": schema,
+            "system": system,
+            "table": "customer",
+            "bucket_name": bucket_name,
+            "year": str(ano),
+            "month": mes,
+            "day": dia,
+            "credentials_json": service_account_info,
+        },
+    )
+
+    product_raw = PythonOperator(
+        task_id="product_raw",
+        python_callable=run_raw,
+        op_kwargs={
+            "project_id": project_id,
+            "schema": schema,
+            "system": system,
+            "table": "product",
+            "bucket_name": bucket_name,
+            "year": str(ano),
+            "month": mes,
+            "day": dia,
+            "credentials_json": service_account_info,
+        },
+    )
+
+    customer_ingestion >> customer_raw
+    product_ingestion >> product_raw
+    customer_raw >> product_raw

@@ -39,5 +39,6 @@ class PostgresClient:
 
         logger.info("Executing SELECT query")
 
-        with self.conn.cursor() as cursor:
-            return cursor.execute(query)
+        cursor = self.conn.cursor()
+        cursor.execute(query)
+        return cursor

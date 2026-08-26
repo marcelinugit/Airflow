@@ -1,4 +1,5 @@
 import pyarrow as pa
+from datetime import datetime
 import pyarrow.parquet as pq
 import os
 from pathlib import Path
@@ -7,6 +8,7 @@ from typing import Optional
 import google
 from google.cloud import storage
 from google.oauth2 import service_account
+
 from gustavo_sdk.infrastructure.common.utils import get_logger
 
 logger = get_logger(__name__)
@@ -39,13 +41,16 @@ class GCP:
             return service.Client()
 
 
-    def upload_file(
+    def upload_parquet_file(
         self,
         bucket_name: str,
         bucket_prefix: str,
         data: list[dict],
-        file_name: str,
     ) -> None:
+
+        file_name = (
+            f"{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}.parquet"
+        )
 
         with TemporaryDirectory() as root:
             file_path = Path(root) / file_name
