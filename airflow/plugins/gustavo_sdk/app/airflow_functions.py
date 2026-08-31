@@ -4,6 +4,8 @@ from gustavo_sdk.infrastructure.common.utils import get_logger
 from gustavo_sdk.infrastructure.integration.databases.mysql_client import MySQLClient
 from gustavo_sdk.infrastructure.integration.databases.postgres_client import PostgresClient
 from gustavo_sdk.app.jobs.pipelines.raw import Raw
+from gustavo_sdk.app.jobs.pipelines.bronze import Bronze
+
 
 logger = get_logger(__name__)
 
@@ -12,7 +14,6 @@ def mysql_to_bucket(
         table_name: str,
         bucket_name: str,
         bucket_prefix: str,
-        file_name: str,
         host: str,
         database: str,
         user: str,
@@ -45,6 +46,7 @@ def mysql_to_bucket(
         job.run(
             query=f"SELECT * FROM {table_name}",
         )
+
     except Exception as err:
         logger.exception(f"MySQL ETL job failed: {err}")
         raise
@@ -62,7 +64,6 @@ def postgres_to_bucket(
         credentials_json: str,
 ) -> None:
     try:
-
         config = {
             "host": host,
             "database": database,
@@ -117,3 +118,21 @@ def run_raw(
     )
 
     raw.run()
+
+
+def run_bronze(
+        project_id: str,
+        system: str,
+        table: str,
+        pk: str,
+        credentials_json: dict,
+) -> None:
+    bronze = Bronze(
+        project_id=project_id,
+        system=system,
+        table=table,
+        pk=pk,
+        credentials_json=credentials_json,
+    )
+
+    bronze.run()
