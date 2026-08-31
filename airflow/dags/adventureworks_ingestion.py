@@ -5,13 +5,13 @@ import json
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.hooks.base import BaseHook
+from airflow.utils.task_group import TaskGroup
 
 from gustavo_sdk.app.airflow_functions import (
     postgres_to_bucket,
     run_raw,
     run_bronze,
 )
-
 
 logger = logging.getLogger(__name__)
 
@@ -57,97 +57,103 @@ with DAG(
     catchup=False,
 ) as dag:
 
-    customer_ingestion = PythonOperator(
-        task_id="customer_ingestion",
-        python_callable=postgres_to_bucket,
-        op_kwargs={
-            "host": host,
-            "user": user,
-            "password": password,
-            "port": port,
-            "database": database,
-            "table_name": "Sales.Customer",
-            "bucket_name": bucket_name,
-            "bucket_prefix": (
-                f"{system}/customer/{hive_partition}"
-            ),
-            "credentials_json": service_account_info,
-        },
-    )
+    with TaskGroup(group_id="customer") as customer:
 
-    product_ingestion = PythonOperator(
-        task_id="product_ingestion",
-        python_callable=postgres_to_bucket,
-        op_kwargs={
-            "host": host,
-            "user": user,
-            "password": password,
-            "port": port,
-            "database": database,
-            "table_name": "Production.Product",
-            "bucket_name": bucket_name,
-            "bucket_prefix": (
-                f"{system}/product/{hive_partition}"
-            ),
-            "credentials_json": service_account_info,
-        },
-    )
+        customer_ingestion = PythonOperator(
+            task_id="ingestion",
+            python_callable=postgres_to_bucket,
+            op_kwargs={
+                "host": host,
+                "user": user,
+                "password": password,
+                "port": port,
+                "database": database,
+                "table_name": "Sales.Customer",
+                "bucket_name": bucket_name,
+                "bucket_prefix": (
+                    f"{system}/customer/{hive_partition}"
+                ),
+                "credentials_json": service_account_info,
+            },
+        )
 
-    customer_raw = PythonOperator(
-        task_id="customer_raw",
-        python_callable=run_raw,
-        op_kwargs={
-            "project_id": project_id,
-            "schema": schema,
-            "system": system,
-            "table": "customer",
-            "bucket_name": bucket_name,
-            "year": str(ano),
-            "month": mes,
-            "day": dia,
-            "credentials_json": service_account_info,
-        },
-    )
+        customer_raw = PythonOperator(
+            task_id="raw",
+            python_callable=run_raw,
+            op_kwargs={
+                "project_id": project_id,
+                "schema": schema,
+                "system": system,
+                "table": "customer",
+                "bucket_name": bucket_name,
+                "year": str(ano),
+                "month": mes,
+                "day": dia,
+                "credentials_json": service_account_info,
+            },
+        )
 
-    product_raw = PythonOperator(
-        task_id="product_raw",
-        python_callable=run_raw,
-        op_kwargs={
-            "project_id": project_id,
-            "schema": schema,
-            "system": system,
-            "table": "product",
-            "bucket_name": bucket_name,
-            "year": str(ano),
-            "month": mes,
-            "day": dia,
-            "credentials_json": service_account_info,
-        },
-    )
+        customer_bronze = PythonOperator(
+            task_id="bronze",
+            python_callable=run_bronze,
+            op_kwargs={
+                "project_id": project_id,
+                "system": system,
+                "table": "customer",
+                "pk": "customerid",
+                "credentials_json": service_account_info,
+            },
+        )
 
-    customer_bronze = PythonOperator(
-        task_id="customer_bronze",
-        python_callable=run_bronze,
-        op_kwargs={
-            "project_id": project_id,
-            "system": system,
-            "table": "customer",
-            "pk": "customerid",
-            "credentials_json": service_account_info,
-        },
-    )
+        customer_ingestion >> customer_raw >> customer_bronze
 
-    product_bronze = PythonOperator(
-        task_id="product_bronze",
-        python_callable=run_bronze,
-        op_kwargs={
-            "project_id": project_id,
-            "system": system,
-            "table": "product",
-            "pk": "productid",
-            "credentials_json": service_account_info,
-        },
-    )
 
-    customer_ingestion >> customer_raw >> customer_bronze
-    product_ingestion >> product_raw >> product_bronze
+    with TaskGroup(group_id="product") as product:
+
+        product_ingestion = PythonOperator(
+            task_id="ingestion",
+            python_callable=postgres_to_bucket,
+            op_kwargs={
+                "host": host,
+                "user": user,
+                "password": password,
+                "port": port,
+                "database": database,
+                "table_name": "Production.Product",
+                "bucket_name": bucket_name,
+                "bucket_prefix": (
+                    f"{system}/product/{hive_partition}"
+                ),
+                "credentials_json": service_account_info,
+            },
+        )
+
+        product_raw = PythonOperator(
+            task_id="raw",
+            python_callable=run_raw,
+            op_kwargs={
+                "project_id": project_id,
+                "schema": schema,
+                "system": system,
+                "table": "product",
+                "bucket_name": bucket_name,
+                "year": str(ano),
+                "month": mes,
+                "day": dia,
+                "credentials_json": service_account_info,
+            },
+        )
+
+        product_bronze = PythonOperator(
+            task_id="bronze",
+            python_callable=run_bronze,
+            op_kwargs={
+                "project_id": project_id,
+                "system": system,
+                "table": "product",
+                "pk": "productid",
+                "credentials_json": service_account_info,
+            },
+        )
+
+        product_ingestion >> product_raw >> product_bronze
