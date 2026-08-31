@@ -1,14 +1,17 @@
 import logging
 from datetime import datetime
+import json
+
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.hooks.base import BaseHook
-import json
 
 from gustavo_sdk.app.airflow_functions import (
     postgres_to_bucket,
     run_raw,
+    run_bronze,
 )
+
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +35,7 @@ project_id = service_account_info["project_id"]
 system = "adventureworks"
 schema = "adventureworks_raw"
 bucket_name = "gustavo-data-plataform-raw"
+
 
 today = datetime.now()
 
@@ -121,6 +125,29 @@ with DAG(
         },
     )
 
-    customer_ingestion >> customer_raw
-    product_ingestion >> product_raw
-    customer_raw >> product_raw
+    customer_bronze = PythonOperator(
+        task_id="customer_bronze",
+        python_callable=run_bronze,
+        op_kwargs={
+            "project_id": project_id,
+            "system": system,
+            "table": "customer",
+            "pk": "customerid",
+            "credentials_json": service_account_info,
+        },
+    )
+
+    product_bronze = PythonOperator(
+        task_id="product_bronze",
+        python_callable=run_bronze,
+        op_kwargs={
+            "project_id": project_id,
+            "system": system,
+            "table": "product",
+            "pk": "productid",
+            "credentials_json": service_account_info,
+        },
+    )
+
+    customer_ingestion >> customer_raw >> customer_bronze
+    product_ingestion >> product_raw >> product_bronze

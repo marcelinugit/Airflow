@@ -11,7 +11,7 @@ dedup AS (
     *,
     ROW_NUMBER() OVER (
       PARTITION BY {pk}
-      ORDER BY ingestion_timestamp_raw DESC
+      ORDER BY ingestion_timestamp_bronze DESC
     ) AS rn
   FROM base
 )
